@@ -1,0 +1,3 @@
+[submodule "Software/EmbedSoftware/Top_Power_2v1/components/lvgl"]
+	path = Software/EmbedSoftware/Top_Power_2v1/components/lvgl
+	url = https://github.com/lvgl/lvgl.git
