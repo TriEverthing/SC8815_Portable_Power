@@ -1,0 +1,1 @@
+GEN_CSRCS += lv_font_MonosB_40.c lv_font_montserratMedium_16.c lv_font_MonosB_30.c lv_font_MonosB_16.c lv_font_MonosB_32.c lv_font_MonosB_22.c lv_font_MonosB_18.c
