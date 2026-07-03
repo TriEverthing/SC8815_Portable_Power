@@ -35,7 +35,7 @@
 #include "comm_uart.h"
 #include "comm_powerctrl.h"
 //WiFi
-#include "wifi_station.h"
+#include "wifi_webserver.h"
 
 #define LED_RUN_PIN     GPIO_NUM_6
 
@@ -68,13 +68,13 @@ void app_main(void)
 
     xTaskCreate( LED_Task , "LED_Task" , configMINIMAL_STACK_SIZE , NULL , 1 , NULL );
 
-    xTaskCreate( guiTask , "Gui_Task" , 1024*8 , NULL , 1 , NULL );
+    xTaskCreate( WiFi_Task , "WiFi_Task" , configMINIMAL_STACK_SIZE*2 , NULL , 1 , NULL );
 
-    xTaskCreate( comm_powerctrl_Task , "Power_Task" , 1024*4 , NULL , 1 , NULL );
+    xTaskCreate( guiTask , "Gui_Task" , configMINIMAL_STACK_SIZE*4 , NULL , 1 , NULL );
 
-    xTaskCreate( comm_uart_recv_Task , "Rev_Task" , 1024*2 , NULL , 2 , NULL );
+    xTaskCreate( comm_powerctrl_Task , "Power_Task" , configMINIMAL_STACK_SIZE*2, NULL , 1 , NULL );
 
-    xTaskCreate( WiFi_Station_Task , "WiFi_Task" , 1024*8 , NULL , 1 , NULL );
+    xTaskCreate( comm_uart_recv_Task , "Rev_Task" , configMINIMAL_STACK_SIZE*2 , NULL , 2 , NULL );
 }
 
 /* Creates a semaphore to handle concurrent call to lvgl stuff

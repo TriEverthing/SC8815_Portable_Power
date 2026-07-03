@@ -9,13 +9,14 @@ else() #ESP-IDF version >= 5.3
     set(PRIVREQ )
 endif()
 
-set(REQ ${REQ} esp_wifi nvs_flash)
+set(REQ ${REQ} esp_http_server nvs_flash esp_wifi)
 
-file(GLOB_RECURSE WIFI_SRC src/*.c)
+file(GLOB_RECURSE WIFI_SRC ./*.c)
 
-set(WIFI_INC inc )
+set(WIFI_INC . )
 
 idf_component_register(SRCS ${WIFI_SRC}
                     INCLUDE_DIRS ${WIFI_INC}
                     REQUIRES ${REQ}  
-                    PRIV_REQUIRES ${PRIVREQ})
+                    PRIV_REQUIRES ${PRIVREQ}
+                    EMBED_FILES "index.html")

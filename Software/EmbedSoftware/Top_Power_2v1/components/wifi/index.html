@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Configure WiFi</title>
+  <meta name="viewport" content="width=device-width">
+</head>
+<body>
+  <h2 style="text-align:center;">Connect to Your Network</h2>
+  <form action="/connect" method="POST">
+    <label>SSID:</label><br>
+    <input type="text" name="ssid" required></input><br>
+    <label>Password:</label><br>
+    <input type="password" name="pass" minlength="8"></input><br><br>
+    <button type="submit"> Connect</button>
+  </form>
+</body>
+</html>
