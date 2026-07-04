@@ -70,7 +70,7 @@
             flex-wrap: wrap; 
         }
 
-        /* Keep label + input + button aligned horizontally in each config group */
+        /* Keep label + input  aligned horizontally in each config group */
         .set-group {
             display: flex;
             align-items: center;
@@ -88,21 +88,6 @@
             border-radius: 6px;
             font-size: 1rem;
             text-align: center; 
-        }
-        button { 
-            background: #00e5ff; 
-            color: #121212; 
-            border: none; 
-            padding: 10px 25px; 
-            border-radius: 6px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: all 0.2s;
-            min-height: 44px;
-        }
-        button:hover {
-            background: #00b8d4;
-            transform: translateY(-1px);
         }
         /* Real-time data card section */
         .data-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 16px; }
@@ -141,9 +126,6 @@
                 <div class="set-group">
                     <label >电流(A):</label>
                     <input type="number" step="0.01" min="0.1" max="36" id="setCurrentInput" value="10.00" placeholder="0.00">
-                </div>
-                <div class="set-group">
-                    <button onclick="SubmitPowerSet()">提交设置</button>
                 </div>
             </div>
         </div>
@@ -200,6 +182,32 @@
             }
         });
 
+        let isUpdatingFromBackend = false; 
+        let isUserInputting = false;
+
+        const inputList = [
+            document.getElementById('setVoltageInput'),
+            document.getElementById('setCurrentInput')
+        ];
+
+        inputList.forEach(inputEl => {
+            inputEl.addEventListener('focus', () => {
+                isUserInputting = true;
+            });
+
+            inputEl.addEventListener('blur', () => {
+                SubmitPowerSet(null);
+                isUserInputting = false;
+            });
+
+            inputEl.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    inputEl.blur(); 
+                }
+            });
+        });
+
         let dataIndex = 0;
         // Refresh sampled data every 100ms, update UI values and waveform chart
         setInterval(async () => 
@@ -210,10 +218,21 @@
                 // Update displayed voltage, current and power values on page
                 document.getElementById('voltage').innerText = data.voltage.toFixed(3);
                 document.getElementById('current').innerText = data.current.toFixed(3);
-
                 const calculatedPower = data.voltage * data.current;
                 document.getElementById('power').innerText = calculatedPower.toFixed(4);
+
+                if( !isUserInputting )
+                {
+                    document.getElementById('setVoltageInput').value = data.setvolt.toFixed(2);
+                    document.getElementById('setCurrentInput').value = data.setcurr.toFixed(2);
+                }
                 
+                isUpdatingFromBackend = true;
+                powerInput.checked = Number.isInteger(parseInt(data.switch, 10)) && [0, 1].includes(parseInt(data.switch, 10))
+                                    ? data.switch === 1
+                                    : powerInput.checked;
+                setTimeout(() => { isUpdatingFromBackend = false; }, 0);
+
                 // Slide waveform window: remove oldest point, append new sampled value
                 waveChart.data.datasets[0].data.shift();
                 waveChart.data.datasets[0].data.push(data.voltage);
@@ -309,6 +328,11 @@
 
         const powerInput = document.querySelector('.powerswitch input[type="checkbox"]');
         powerInput.addEventListener('change',async () => {
+            if(isUpdatingFromBackend) 
+            {
+                isUpdatingFromBackend = false;
+                return;
+            }
             await SubmitPowerSet(powerInput.checked ? 1 : 0);
             console.log("Power Switch:",powerInput.checked ? 1 : 0);
         });

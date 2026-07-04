@@ -188,6 +188,15 @@ esp_err_t power_web_set_handler(httpd_req_t *req)
         sscanf(powerEnPtr + 9, "%d", &power_state);
         ESP_LOGI(TAG, "Power control command received, state: %d", power_state);
         // Call SC8815 power enable driver directly
+        if( power_state )
+        {
+            power_data.set_switch_status = 1 ;
+        }
+        else
+        {
+            power_data.set_switch_status = 0 ;
+              
+        }
         comm_powerctrl_set_output(power_state);
     }
 
@@ -241,13 +250,16 @@ esp_err_t power_web_set_handler(httpd_req_t *req)
 static esp_err_t power_sample_data_handler(httpd_req_t *req)
 {
     char resp_buf[256];
-    float volt_adc = power_data.ina_read_voltage / 1000.0;  // Replace with your actual voltage sampling function
-    float curr_adc = power_data.ina_read_current / 1000.0;  // Replace with your actual current sampling function
+    float cur_volt = power_data.ina_read_voltage / 1000.0; 
+    float cur_curr = power_data.ina_read_current / 1000.0; 
+    float set_volt = power_data.set_voltage / 1000.0;
+    float set_curr = power_data.set_current / 1000.0;
+    uint8_t powerswitch = power_data.set_switch_status;
     int64_t timestamp = esp_timer_get_time() / 1000;
 
     snprintf(resp_buf, sizeof(resp_buf), 
-             "{\"voltage\":%.3f,\"current\":%.3f,\"timestamp\":%lld}",
-             volt_adc, curr_adc, timestamp);
+             "{\"voltage\":%.3f,\"current\":%.3f,\"setvolt\":%.2f,\"setcurr\":%.2f,\"switch\":%d,\"timestamp\":%lld}",
+             cur_volt, cur_curr, set_volt, set_curr, powerswitch, timestamp);
 
     httpd_resp_set_type(req, "text/plain");
     httpd_resp_send(req, resp_buf, strlen(resp_buf));
