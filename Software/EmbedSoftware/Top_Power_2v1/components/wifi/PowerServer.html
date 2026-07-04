@@ -107,24 +107,24 @@
         <!-- Parameter configuration panel -->
         <div class="control-panel">
 
-            <h3>电源开关</h3>
+            
             <div class="set-group">
+                <h3>电源开关</h3>
                 <label class="powerswitch">
                     <input type="checkbox" id="powerToggle">
                     <span class="powerswitch-slider"></span>
                 </label>
             </div>
 
-            <h3>电源电压电流设置</h3>
             <!-- Two-column wrapper for side-by-side voltage/current control groups -->
             <div class="config-two-col">
                 <div class="set-group">
-                    <label >电压(V):</label>
+                    <label >设置电压(V):</label>
                     <input type="number" step="0.01" min="0.6" max="10" id="setVoltageInput" value="3.30" placeholder="0.00">
                 </div>
 
                 <div class="set-group">
-                    <label >电流(A):</label>
+                    <label >设置电流(A):</label>
                     <input type="number" step="0.01" min="0.1" max="36" id="setCurrentInput" value="10.00" placeholder="0.00">
                 </div>
             </div>
