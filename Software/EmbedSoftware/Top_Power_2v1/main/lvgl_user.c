@@ -222,12 +222,20 @@ void guiTask(void *pvParameter)
         /* Delay 1 tick (assumes FreeRTOS tick is 10ms */
         vTaskDelay(pdMS_TO_TICKS(10));
 
-        /* Try to take the semaphore, call lvgl related function on success */
-        if ( xSemaphoreTake(xGuiSemaphore, portMAX_DELAY) == pdTRUE ) 
+        if( initsetp >= 2 )
+        {
+            /* Try to take the semaphore, call lvgl related function on success */
+            if ( xSemaphoreTake(xGuiSemaphore, portMAX_DELAY) == pdTRUE ) 
+            {
+                lv_task_handler();
+                xSemaphoreGive(xGuiSemaphore);
+            }
+        }
+        else
         {
             lv_task_handler();
-            xSemaphoreGive(xGuiSemaphore);
         }
+
 
        if( initsetp < 1 && ( xTaskGetTickCount() - xLastWakeTime ) > pdMS_TO_TICKS(200) )
         {
@@ -236,8 +244,8 @@ void guiTask(void *pvParameter)
             initsetp = 1 ;
         }
 
-        /* Delay 100ms Switch on blacklight */
-        if( initsetp < 2 && ( xTaskGetTickCount() - xLastWakeTime ) > pdMS_TO_TICKS(800) )
+        /* Delay 1000ms Switch on blacklight */
+        if( initsetp < 2 && ( xTaskGetTickCount() - xLastWakeTime ) > pdMS_TO_TICKS(1000) )
         {
             disp_backlight_set(bckl_handle, 40);
             initsetp = 2 ;
