@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC8815 Buck-Boost Power</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Arial', sans-serif; }
+        body { background: #121212; color: #e0e0e0; padding: 20px; }
+        .dashboard { max-width: 1200px; margin: 0 auto; }
+        h1 { text-align: center; color: #00e5ff; margin-bottom: 25px; }
+        label { display: block; margin-bottom: 8px; font-size: 1rem; }
+        
+        /* Power Switch */
+        .powerswitch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+            background-color: #c4c4c4;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: 0.2s all ease;
+            margin-bottom: 16px;
+        }
+
+        .powerswitch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .powerswitch-slider 
+        {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: white;
+            transition: 0.2s transform ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        .powerswitch input:checked ~ .powerswitch-slider {
+            background-color: inherit;
+            transform: translateX(24px);
+        }
+        .powerswitch:has(input:checked), .powerswitch:has(input:checked) > input:checked + .powerswitch-slider ~ * {
+            background-color: #2ecc71;
+        }
+        /* Control panel container, full content aligned center */
+        .control-panel { 
+            background: #1e1e1e; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-bottom: 25px; 
+            text-align: center; 
+        }
+        .control-panel h3 { margin-bottom: 16px; text-align: center; }
+
+        /* Two-column layout for side-by-side controls, auto wrap on small screens */
+        .config-two-col {
+            display: flex;
+            align-items: center;
+            gap: 40px; 
+            justify-content: center; 
+            flex-wrap: wrap; 
+        }
+
+        /* Keep label + input + button aligned horizontally in each config group */
+        .set-group {
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 10px;
+            justify-content: center; 
+        }
+
+        input[type="number"] { 
+            width: 120px; 
+            padding: 10px; 
+            background: #2a2a2a; 
+            border: 1px solid #444; 
+            color: #fff; 
+            border-radius: 6px;
+            font-size: 1rem;
+            text-align: center; 
+        }
+        button { 
+            background: #00e5ff; 
+            color: #121212; 
+            border: none; 
+            padding: 10px 25px; 
+            border-radius: 6px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: all 0.2s;
+            min-height: 44px;
+        }
+        button:hover {
+            background: #00b8d4;
+            transform: translateY(-1px);
+        }
+        /* Real-time data card section */
+        .data-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 16px; }
+        .card { background: #1e1e1e; border-radius: 12px; padding: 20px 10px; text-align: center;}
+        .card .value { font-size: 2.2rem; font-weight: bold; margin: 10px 0; }
+        .voltage { color: #00e5ff; }
+        .current { color: #ff9100; }
+        .power { color: #ff1744; }
+        /* Waveform chart container */
+        .chart-container { background: #1e1e1e; border-radius: 12px; padding: 20px; margin-bottom: 16px; height: 350px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+
+        <h1>📡 SC8815升降可调电源</h1>
+        <!-- Parameter configuration panel -->
+        <div class="control-panel">
+
+            <h3>电源开关</h3>
+            <div class="set-group">
+                <label class="powerswitch">
+                    <input type="checkbox" id="powerToggle">
+                    <span class="powerswitch-slider"></span>
+                </label>
+            </div>
+
+            <h3>电源电压电流设置</h3>
+            <!-- Two-column wrapper for side-by-side voltage/current control groups -->
+            <div class="config-two-col">
+                <div class="set-group">
+                    <label >电压(V):</label>
+                    <input type="number" step="0.01" min="0.6" max="10" id="setVoltageInput" value="3.30" placeholder="0.00">
+                </div>
+
+                <div class="set-group">
+                    <label >电流(A):</label>
+                    <input type="number" step="0.01" min="0.1" max="36" id="setCurrentInput" value="10.00" placeholder="0.00">
+                </div>
+                <div class="set-group">
+                    <button onclick="SubmitPowerSet()">提交设置</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time sampled data display section -->
+        <div class="data-cards">
+            <div class="card">
+                <h3>电压(V)</h3>
+                <div class="value voltage" id="voltage">00.000</div>
+            </div>
+            <div class="card">
+                <h3>电流(A)</h3>
+                <div class="value current" id="current">00.000</div>
+            </div>
+            <div class="card">
+                <h3>功率(W)</h3>
+                <div class="value power" id="power">00.0000</div>
+            </div>
+        </div>
+
+        <!-- Real-time current waveform chart area -->
+        <div class="chart-container">
+            <canvas id="waveChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // Get 2D canvas context, initialize line waveform chart
+        const ctx = document.getElementById('waveChart').getContext('2d');
+        const waveChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: Array(30).fill(''), // Initialize 30 empty index points for sliding waveform display
+                datasets: [{
+                    label: 'Current Waveform',
+                    data: Array(30).fill(0),
+                    borderColor: '#00e5ff',
+                    backgroundColor: 'rgba(0, 229, 255, 0.1)',
+                    tension: 0.2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { 
+                    y: { 
+                        min: 0, 
+                        max: 36, 
+                        grid: { color: '#333' } 
+                    }, 
+                    x: { grid: { display: false } } 
+                }
+            }
+        });
+
+        let dataIndex = 0;
+        // Refresh sampled data every 100ms, update UI values and waveform chart
+        setInterval(async () => 
+        {
+            try {
+                const res = await fetch('/api/sample');
+                const data = await res.json();
+                // Update displayed voltage, current and power values on page
+                document.getElementById('voltage').innerText = data.voltage.toFixed(3);
+                document.getElementById('current').innerText = data.current.toFixed(3);
+
+                const calculatedPower = data.voltage * data.current;
+                document.getElementById('power').innerText = calculatedPower.toFixed(4);
+                
+                // Slide waveform window: remove oldest point, append new sampled value
+                waveChart.data.datasets[0].data.shift();
+                waveChart.data.datasets[0].data.push(data.voltage);
+                waveChart.data.labels.shift();
+                waveChart.data.labels.push(dataIndex++);
+
+                const currentPeak = Math.max(...waveChart.data.datasets[0].data);
+                waveChart.options.scales.y.max = Math.ceil(currentPeak * 1.2);
+
+                waveChart.update('none');
+            } 
+            catch (e) 
+            {
+                console.log('Failed to fetch sampled data', e);
+            }
+        }, 100);
+
+        // Submit target voltage to ESP32 backend API, with value range validation
+        async function SubmitPowerSet(powerEn = null) 
+        {
+            if (powerEn !== null) 
+            {
+                const formBody = new URLSearchParams();
+                formBody.append("power_en", powerEn ? 1 : 0);
+                try {
+                    const res = await fetch(`/api/power_set`,{
+                        method: "POST",
+                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                        body: formBody
+                    });
+
+                    if(!res.ok) 
+                    {
+                        alert(powerEn ? "打开电源失败" : "关闭电源");
+                        return;
+                    }
+                    return;
+                } 
+                catch (e) 
+                {
+                    alert('网络异常，无法连接到设备');
+                    return;
+                }
+            }
+
+            const voltInput = document.getElementById('setVoltageInput');
+            const currInput = document.getElementById('setCurrentInput');
+
+            const targetVolt = parseFloat(voltInput.value.trim());
+            const targetCurr = parseFloat(currInput.value.trim());
+
+            if(isNaN(targetVolt) || targetVolt < 0.6 || targetVolt > 36) 
+            {
+                alert('请输入0.6~36V之间的有效电压数值');
+                return;
+            }
+
+            if(isNaN(targetCurr) || targetCurr < 0.1 || targetCurr > 10) 
+            {
+                alert('请输入0.1~10A之间的有效电流数值');
+                return;
+            }
+
+            try 
+            {
+                // Construct POST data in form-urlencoded format
+                const formBody = new URLSearchParams();
+                formBody.append("volt", targetVolt.toFixed(2));
+                formBody.append("current", targetCurr.toFixed(2));
+                // Send POST request to ESP32 backend API
+                const res = await fetch(`/api/power_set`,{
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: formBody}
+                );
+
+                if(!res.ok) 
+                {
+                    alert('提交失败，请检查ESP32连接状态');
+                    return;
+                }   
+                const feedback = await res.text();
+                console.log("Power parameters submitted successfully, device response:", feedback);                 
+            } 
+            catch (e) 
+            {
+                alert('网络异常，无法连接到设备');
+            }
+            //inputDom.value = '';
+        }
+
+        const powerInput = document.querySelector('.powerswitch input[type="checkbox"]');
+        powerInput.addEventListener('change',async () => {
+            await SubmitPowerSet(powerInput.checked ? 1 : 0);
+            console.log("Power Switch:",powerInput.checked ? 1 : 0);
+        });
+    </script>
+</body>
+</html>

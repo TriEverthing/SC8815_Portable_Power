@@ -6,6 +6,7 @@
 //esp-idf drivers
 #include "esp_system.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 //lwip
 #include "lwip/err.h"
 #include "lwip/sys.h"
@@ -16,6 +17,17 @@
 #include "esp_event.h"
 #include "esp_wifi.h"
 #include "esp_http_server.h"
+//comm_power data include files
+#include "power_data.h"
+#include "comm_powerctrl.h"
+
+//lvgl
+#include "lvgl.h"
+//nxp guider
+#include <gui_guider.h>
+
+extern lv_ui guider_ui ;
+extern SemaphoreHandle_t xGuiSemaphore ;
 
 
 static const char *TAG = "WiFi";
@@ -138,6 +150,111 @@ void wifi_ap_webserver_start(void)
     ESP_ERROR_CHECK(httpd_register_uri_handler(server, &connect_route));
 }
 
+
+extern const uint8_t _binary_PowerServer_html_start[] asm("_binary_PowerServer_html_start");
+extern const uint8_t _binary_PowerServer_html_end[]   asm("_binary_PowerServer_html_end");
+
+/* Handler for provisioning index page - return the WiFi config HTML to connected STA devices */
+static esp_err_t power_web_handler(httpd_req_t *req)
+{
+    /* Return simplified WiFi configuration page content */
+    httpd_resp_set_type(req, "text/html");
+    size_t html_len = _binary_PowerServer_html_end - _binary_PowerServer_html_start;
+    return httpd_resp_send(req, (const char*)_binary_PowerServer_html_start, html_len);
+}
+
+/**
+ * Unified handler to set both voltage and current parameters
+ * Supports both URL GET query parameters and form POST request body
+ */
+esp_err_t power_web_set_handler(httpd_req_t *req)
+{
+    // Buffer for receiving POST data
+    char post_buf[128] = {0};
+    int recv_len = httpd_req_recv(req, post_buf, sizeof(post_buf)-1);
+    
+    // Return error if data reception fails
+    if (recv_len <= 0) 
+    {
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Parameter reception failed");
+        return ESP_FAIL;
+    }
+
+    // ---------------- power switch control logic  ----------------
+    char *powerEnPtr = strstr(post_buf, "power_en=");
+    int power_state = -1;
+    if(powerEnPtr) 
+    {
+        sscanf(powerEnPtr + 9, "%d", &power_state);
+        ESP_LOGI(TAG, "Power control command received, state: %d", power_state);
+        // Call SC8815 power enable driver directly
+        comm_powerctrl_set_output(power_state);
+    }
+
+    // ---------------- voltage current setting logic  ----------------
+    float targetVolt = 0.0f, targetCurr = 0.0f;
+    // Parse 'volt' and 'current' parameters from request body
+    char *voltPtr = strstr(post_buf, "volt=");
+    char *currPtr = strstr(post_buf, "current=");
+
+    if( voltPtr && currPtr )
+    {
+        if (voltPtr) sscanf(voltPtr + 5, "%f", &targetVolt);
+        if (currPtr) sscanf(currPtr + 8, "%f", &targetCurr);
+
+        // Send control commands to SC8815 hardware
+        ESP_LOGE(TAG, "targetVolt:=%f V, targetCurr=%f A", targetVolt, targetCurr);
+        power_data.set_voltage = (uint16_t)(targetVolt*1000+0.5); //mV
+        power_data.set_current = (uint16_t)(targetCurr*1000+0.5); //mA
+        comm_powerctrl_set_mode( 0 , power_data.set_voltage , power_data.set_current );
+    }
+
+    /* Update UI */
+    if( xGuiSemaphore != NULL )
+    {
+        if ( xSemaphoreTake(xGuiSemaphore, portMAX_DELAY) == pdTRUE ) 
+        {
+            if( power_state >= 0 )
+            {
+                if(power_state ) 
+                {
+                    lv_obj_add_state(guider_ui.PowerSwitch, LV_STATE_CHECKED);
+                } 
+                else 
+                {
+                    lv_obj_clear_state(guider_ui.PowerSwitch, LV_STATE_CHECKED);
+                }
+            }
+            lv_spinbox_set_value(guider_ui.ST7789V3_SetVoltageSpinbox , power_data.set_voltage / 10 );
+            lv_spinbox_set_value(guider_ui.ST7789V3_SetCurrentSpinbox , power_data.set_current / 10 );
+            xSemaphoreGive(xGuiSemaphore);
+        }
+    }
+
+    // Return success response
+    httpd_resp_set_status(req, "200 OK");
+    httpd_resp_sendstr(req, "Parameter setting successful");
+    return ESP_OK;
+}
+
+
+static esp_err_t power_sample_data_handler(httpd_req_t *req)
+{
+    char resp_buf[256];
+    float volt_adc = power_data.ina_read_voltage / 1000.0;  // Replace with your actual voltage sampling function
+    float curr_adc = power_data.ina_read_current / 1000.0;  // Replace with your actual current sampling function
+    int64_t timestamp = esp_timer_get_time() / 1000;
+
+    snprintf(resp_buf, sizeof(resp_buf), 
+             "{\"voltage\":%.3f,\"current\":%.3f,\"timestamp\":%lld}",
+             volt_adc, curr_adc, timestamp);
+
+    httpd_resp_set_type(req, "text/plain");
+    httpd_resp_send(req, resp_buf, strlen(resp_buf));
+    
+    return ESP_OK;
+}
+
 // Manually read and validate WiFi information from custom NVS storage
 bool wifi_sta_connect_saved_wifi(void)
 {
@@ -193,6 +310,40 @@ bool wifi_sta_connect_saved_wifi(void)
 
     /* Wait 5 seconds to verify connection success */ 
     vTaskDelay(pdMS_TO_TICKS(5000));
+
+    if( is_wifi_connected )
+    {
+        /* Start the network configuration web service */
+        httpd_handle_t server = NULL;
+        httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+        config.uri_match_fn = httpd_uri_match_wildcard;
+        /* Satrt httpd sercer */
+        ESP_ERROR_CHECK(httpd_start(&server, &config));
+
+        /* Register GET route for provisioning index page */
+        static const httpd_uri_t power_route = {
+            .uri = "/",
+            .method = HTTP_GET,
+            .handler = power_web_handler
+        };
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &power_route));
+
+        /* Register POST route for WiFi credential submission */
+        static const httpd_uri_t power_set_uri  = {
+            .uri = "/api/power_set",
+            .method = HTTP_POST,
+            .handler = power_web_set_handler
+        };
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &power_set_uri ));  
+        
+        static const httpd_uri_t sample_uri  = {
+            .uri = "/api/sample",
+            .method = HTTP_GET,
+            .handler = power_sample_data_handler
+        };
+        ESP_ERROR_CHECK(httpd_register_uri_handler(server, &sample_uri )); 
+    }
+
     return is_wifi_connected;
 }
 
@@ -222,7 +373,7 @@ void WiFi_Task(void *pvParmeters)
     if( wifi_sta_connect_saved_wifi() == false )
     {
         wifi_ap_webserver_start();
-    }   
+    }
 
     while(1)
     {

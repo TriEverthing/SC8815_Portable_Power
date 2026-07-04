@@ -9,7 +9,7 @@ else() #ESP-IDF version >= 5.3
     set(PRIVREQ )
 endif()
 
-set(REQ ${REQ} esp_http_server nvs_flash esp_wifi)
+set(REQ ${REQ} esp_http_server nvs_flash esp_wifi comm_power lvgl guiguider)
 
 file(GLOB_RECURSE WIFI_SRC ./*.c)
 
@@ -19,4 +19,4 @@ idf_component_register(SRCS ${WIFI_SRC}
                     INCLUDE_DIRS ${WIFI_INC}
                     REQUIRES ${REQ}  
                     PRIV_REQUIRES ${PRIVREQ}
-                    EMBED_FILES "index.html")
+                    EMBED_FILES "index.html" "PowerServer.html")
