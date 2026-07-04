@@ -183,6 +183,25 @@
         });
 
         let isUpdatingFromBackend = false; 
+        let isSwitchOperating = false;
+
+        const powerInput = document.querySelector('.powerswitch input[type="checkbox"]');
+
+        powerInput.addEventListener('mousedown', () => {
+            isSwitchOperating = true;
+        });
+
+        powerInput.addEventListener('change',async () => {
+            if(isUpdatingFromBackend) 
+            {
+                isUpdatingFromBackend = false;
+                return;
+            }
+            await SubmitPowerSet(powerInput.checked ? 1 : 0);
+            setTimeout(() => { isSwitchOperating = false; }, 200);
+            console.log("Power Switch:",powerInput.checked ? 1 : 0);
+        });
+
         let isUserInputting = false;
 
         const inputList = [
@@ -227,11 +246,13 @@
                     document.getElementById('setCurrentInput').value = data.setcurr.toFixed(2);
                 }
                 
-                isUpdatingFromBackend = true;
-                powerInput.checked = Number.isInteger(parseInt(data.switch, 10)) && [0, 1].includes(parseInt(data.switch, 10))
-                                    ? data.switch === 1
-                                    : powerInput.checked;
-                setTimeout(() => { isUpdatingFromBackend = false; }, 0);
+                if (!isSwitchOperating) {
+                    isUpdatingFromBackend = true;
+                    powerInput.checked = Number.isInteger(parseInt(data.switch, 10)) && [0, 1].includes(parseInt(data.switch, 10))
+                                        ? data.switch === 1
+                                        : powerInput.checked;
+                    setTimeout(() => { isUpdatingFromBackend = false; }, 0);
+                }
 
                 // Slide waveform window: remove oldest point, append new sampled value
                 waveChart.data.datasets[0].data.shift();
@@ -325,17 +346,6 @@
             }
             //inputDom.value = '';
         }
-
-        const powerInput = document.querySelector('.powerswitch input[type="checkbox"]');
-        powerInput.addEventListener('change',async () => {
-            if(isUpdatingFromBackend) 
-            {
-                isUpdatingFromBackend = false;
-                return;
-            }
-            await SubmitPowerSet(powerInput.checked ? 1 : 0);
-            console.log("Power Switch:",powerInput.checked ? 1 : 0);
-        });
     </script>
 </body>
 </html>

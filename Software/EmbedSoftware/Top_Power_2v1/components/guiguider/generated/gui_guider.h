@@ -19,7 +19,7 @@ typedef struct
 {
 	lv_obj_t *ST7789V3;
 	bool ST7789V3_del;
-	lv_obj_t *ST7789V3_Status_Lable1;
+	lv_obj_t *ST7789V3_IPV4_Lable;
 	lv_obj_t *ST7789V3_InputVoltage_Lable;
 	lv_obj_t *ST7789V3_Temp_Lable;
 

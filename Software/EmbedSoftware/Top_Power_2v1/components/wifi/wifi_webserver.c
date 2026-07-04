@@ -29,7 +29,7 @@
 extern lv_ui guider_ui ;
 extern SemaphoreHandle_t xGuiSemaphore ;
 
-
+char current_ipv4[16] = {0}; 
 static const char *TAG = "WiFi";
 static bool is_wifi_connected = false;
 
@@ -50,6 +50,8 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,int32_t ev
     {
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "Station Mode, Connect Router,IP:" IPSTR, IP2STR(&event->ip_info.ip));
+        esp_ip4addr_ntoa(&event->ip_info.ip, current_ipv4, sizeof(current_ipv4));
+        lv_label_set_text(guider_ui.ST7789V3_IPV4_Lable, current_ipv4);   
     }
 }
 
@@ -102,7 +104,11 @@ static esp_err_t connect_wifi_handler(httpd_req_t *req)
 void wifi_ap_webserver_start(void)
 {
     // Create default network interfaces for AP modes
-    esp_netif_create_default_wifi_ap();
+    esp_netif_t *ap_netif = esp_netif_create_default_wifi_ap();
+    esp_netif_ip_info_t ap_ip;
+    esp_netif_get_ip_info(ap_netif, &ap_ip);
+    esp_ip4addr_ntoa(&ap_ip.ip, current_ipv4, sizeof(current_ipv4));
+    lv_label_set_text(guider_ui.ST7789V3_IPV4_Lable, current_ipv4);    
 
     /* Soft AP Mode */
     wifi_config_t ap_config = 

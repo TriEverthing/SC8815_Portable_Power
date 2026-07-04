@@ -39,7 +39,6 @@ static void power_switch_event_handler(lv_event_t * even_t)
         if( lv_obj_has_state(obj, LV_STATE_CHECKED) )
         {
             ESP_LOGI("lvgl event","Power Siwcth ON.");
-            lv_label_set_text( guider_ui.ST7789V3_Status_Lable1 , "ON" );
             power_data.set_switch_status = 1 ;
             comm_powerctrl_set_output(1);  
             comm_powerctrl_set_mode( 0 , power_data.set_voltage , power_data.set_current );
@@ -47,7 +46,6 @@ static void power_switch_event_handler(lv_event_t * even_t)
         else
         {
             ESP_LOGI("lvgl event","Power Siwcth OFF.");
-            lv_label_set_text( guider_ui.ST7789V3_Status_Lable1 , "OFF" );
             power_data.set_switch_status = 0 ;
             comm_powerctrl_set_output(0);  
         }

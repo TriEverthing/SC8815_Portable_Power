@@ -24,6 +24,7 @@
  * - we are connected to the AP with an IP
  * - we failed to connect after the maximum amount of retries */
 
+extern char current_ipv4[16];
 
 /* exported functions ---------------------------------------------------------*/
 void WiFi_Task(void *pvParmeters);
