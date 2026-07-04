@@ -11,7 +11,7 @@ endif()
 
 set(REQ ${REQ} esp_timer comm_power lvgl_keypad wifi lvgl_esp32_drivers lvgl guiguider)
     
-idf_component_register(SRCS "top_power_main.c"
+idf_component_register(SRCS "top_power_main.c" "lvgl_user.c"
                     INCLUDE_DIRS "."
                     REQUIRES ${REQ}
                     PRIV_REQUIRES ${PRIVREQ})
