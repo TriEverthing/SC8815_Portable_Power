@@ -311,7 +311,7 @@ void sc8815_user_init()
     SC8815_HardwareInitStruct.ICHAR = SCHWI_ICHAR_IBUS;
     SC8815_HardwareInitStruct.TRICKLE = SCHWI_TRICKLE_Disable;
     SC8815_HardwareInitStruct.TERM = SCHWI_TERM_Disable;
-    SC8815_HardwareInitStruct.FB_Mode = SCHWI_FB_Internal;
+    SC8815_HardwareInitStruct.FB_Mode = SCHWI_FB_External;
     SC8815_HardwareInitStruct.TRICKLE_SET = SCHWI_TRICKLE_SET_70;
     SC8815_HardwareInitStruct.OVP = SCHWI_OVP_Disable;
     SC8815_HardwareInitStruct.DITHER = SCHWI_DITHER_Disable;
