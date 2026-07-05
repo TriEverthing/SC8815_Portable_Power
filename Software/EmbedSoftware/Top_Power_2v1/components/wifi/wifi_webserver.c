@@ -234,10 +234,12 @@ esp_err_t power_web_set_handler(httpd_req_t *req)
                 if(power_state ) 
                 {
                     lv_obj_add_state(guider_ui.PowerSwitch, LV_STATE_CHECKED);
+                    lv_label_set_text(guider_ui.ST7789V3_Status_Lable1, "ON"); 
                 } 
                 else 
                 {
                     lv_obj_clear_state(guider_ui.PowerSwitch, LV_STATE_CHECKED);
+                    lv_label_set_text(guider_ui.ST7789V3_Status_Lable1, "OFF"); 
                 }
             }
             lv_spinbox_set_value(guider_ui.ST7789V3_SetVoltageSpinbox , power_data.set_voltage / 10 );

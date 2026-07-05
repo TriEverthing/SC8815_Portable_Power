@@ -181,30 +181,30 @@ void setup_scr_ST7789V3(lv_ui *ui)
 	lv_obj_set_style_pad_left(ui->ST7789V3_VoltageUnit_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_shadow_width(ui->ST7789V3_VoltageUnit_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
-	//Write codes ST7789V3_IPV4_Lable
-	ui->ST7789V3_IPV4_Lable = lv_label_create(ui->ST7789V3);
-	lv_label_set_text(ui->ST7789V3_IPV4_Lable, "255.255.255.0");
-	lv_label_set_long_mode(ui->ST7789V3_IPV4_Lable, LV_LABEL_LONG_WRAP);
-	lv_obj_set_pos(ui->ST7789V3_IPV4_Lable, 0, 0);
-	lv_obj_set_size(ui->ST7789V3_IPV4_Lable, 320, 32);
+    //Write codes ST7789V3_Status_Lable1
+    ui->ST7789V3_Status_Lable1 = lv_label_create(ui->ST7789V3);
+    lv_label_set_text(ui->ST7789V3_Status_Lable1, "ON");
+    lv_label_set_long_mode(ui->ST7789V3_Status_Lable1, LV_LABEL_LONG_WRAP);
+    lv_obj_set_pos(ui->ST7789V3_Status_Lable1, 0, 0);
+    lv_obj_set_size(ui->ST7789V3_Status_Lable1, 320, 32);
 
-	//Write style for ST7789V3_IPV4_Lable, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
-	lv_obj_set_style_border_width(ui->ST7789V3_IPV4_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_radius(ui->ST7789V3_IPV4_Lable, 5, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_color(ui->ST7789V3_IPV4_Lable, lv_color_hex(0xff00cd), LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_font(ui->ST7789V3_IPV4_Lable, &lv_font_MonosB_16, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_opa(ui->ST7789V3_IPV4_Lable, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_letter_space(ui->ST7789V3_IPV4_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_line_space(ui->ST7789V3_IPV4_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_align(ui->ST7789V3_IPV4_Lable, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_bg_opa(ui->ST7789V3_IPV4_Lable, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_bg_color(ui->ST7789V3_IPV4_Lable, lv_color_hex(0xc8c9c9), LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_bg_grad_dir(ui->ST7789V3_IPV4_Lable, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_top(ui->ST7789V3_IPV4_Lable, 8, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_right(ui->ST7789V3_IPV4_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_bottom(ui->ST7789V3_IPV4_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_left(ui->ST7789V3_IPV4_Lable, 64, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_shadow_width(ui->ST7789V3_IPV4_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    //Write style for ST7789V3_Status_Lable1, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+    lv_obj_set_style_border_width(ui->ST7789V3_Status_Lable1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_radius(ui->ST7789V3_Status_Lable1, 5, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui->ST7789V3_Status_Lable1, lv_color_hex(0x00e0ff), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui->ST7789V3_Status_Lable1, &lv_font_MonosB_30, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui->ST7789V3_Status_Lable1, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_letter_space(ui->ST7789V3_Status_Lable1, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_line_space(ui->ST7789V3_Status_Lable1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui->ST7789V3_Status_Lable1, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui->ST7789V3_Status_Lable1, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui->ST7789V3_Status_Lable1, lv_color_hex(0xc8c9c9), LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_grad_dir(ui->ST7789V3_Status_Lable1, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui->ST7789V3_Status_Lable1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui->ST7789V3_Status_Lable1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui->ST7789V3_Status_Lable1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui->ST7789V3_Status_Lable1, 64, LV_PART_MAIN|LV_STATE_DEFAULT);
+    lv_obj_set_style_shadow_width(ui->ST7789V3_Status_Lable1, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
 	//Write codes ST7789V3_CV_Lable
 	ui->ST7789V3_CV_Lable = lv_label_create(ui->ST7789V3);
@@ -290,39 +290,39 @@ void setup_scr_ST7789V3(lv_ui *ui)
 	lv_obj_set_style_pad_left(ui->ST7789V3_OCP_Lable, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
 	lv_obj_set_style_shadow_width(ui->ST7789V3_OCP_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
-	//Write codes ST7789V3_Timer_Lable
-	ui->ST7789V3_Timer_Lable = lv_label_create(ui->ST7789V3);
-	lv_label_set_text(ui->ST7789V3_Timer_Lable, "00:00:00:00");
-	lv_label_set_long_mode(ui->ST7789V3_Timer_Lable, LV_LABEL_LONG_WRAP);
-	lv_obj_set_pos(ui->ST7789V3_Timer_Lable, 0, 149);
-	lv_obj_set_size(ui->ST7789V3_Timer_Lable, 140, 22);
+	//Write codes ST7789V3_IPV4_Lable
+	ui->ST7789V3_IPV4_Lable = lv_label_create(ui->ST7789V3);
+	lv_label_set_text(ui->ST7789V3_IPV4_Lable, "00:00:00:00");
+	lv_label_set_long_mode(ui->ST7789V3_IPV4_Lable, LV_LABEL_LONG_WRAP);
+	lv_obj_set_pos(ui->ST7789V3_IPV4_Lable, 0, 149);
+	lv_obj_set_size(ui->ST7789V3_IPV4_Lable, 140, 22);
 
-	//Write style for ST7789V3_Timer_Lable, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
-	lv_obj_set_style_border_width(ui->ST7789V3_Timer_Lable, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_border_opa(ui->ST7789V3_Timer_Lable, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_border_color(ui->ST7789V3_Timer_Lable, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_border_side(ui->ST7789V3_Timer_Lable, LV_BORDER_SIDE_FULL, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_radius(ui->ST7789V3_Timer_Lable, 5, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_color(ui->ST7789V3_Timer_Lable, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_font(ui->ST7789V3_Timer_Lable, &lv_font_MonosB_18, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_opa(ui->ST7789V3_Timer_Lable, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_letter_space(ui->ST7789V3_Timer_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_line_space(ui->ST7789V3_Timer_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_text_align(ui->ST7789V3_Timer_Lable, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_bg_opa(ui->ST7789V3_Timer_Lable, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_bg_color(ui->ST7789V3_Timer_Lable, lv_color_hex(0xadaca8), LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_bg_grad_dir(ui->ST7789V3_Timer_Lable, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_top(ui->ST7789V3_Timer_Lable, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_right(ui->ST7789V3_Timer_Lable, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_bottom(ui->ST7789V3_Timer_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_left(ui->ST7789V3_Timer_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
-	lv_obj_set_style_shadow_width(ui->ST7789V3_Timer_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+	//Write style for ST7789V3_IPV4_Lable, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.
+	lv_obj_set_style_border_width(ui->ST7789V3_IPV4_Lable, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_border_opa(ui->ST7789V3_IPV4_Lable, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_border_color(ui->ST7789V3_IPV4_Lable, lv_color_hex(0x000000), LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_border_side(ui->ST7789V3_IPV4_Lable, LV_BORDER_SIDE_FULL, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_radius(ui->ST7789V3_IPV4_Lable, 5, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_text_color(ui->ST7789V3_IPV4_Lable, lv_color_hex(0xffffff), LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_text_font(ui->ST7789V3_IPV4_Lable, &lv_font_MonosB_16, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_text_opa(ui->ST7789V3_IPV4_Lable, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_text_letter_space(ui->ST7789V3_IPV4_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_text_line_space(ui->ST7789V3_IPV4_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_text_align(ui->ST7789V3_IPV4_Lable, LV_TEXT_ALIGN_RIGHT, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_bg_opa(ui->ST7789V3_IPV4_Lable, 255, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_bg_color(ui->ST7789V3_IPV4_Lable, lv_color_hex(0xadaca8), LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_bg_grad_dir(ui->ST7789V3_IPV4_Lable, LV_GRAD_DIR_NONE, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_pad_top(ui->ST7789V3_IPV4_Lable, 1, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_pad_right(ui->ST7789V3_IPV4_Lable, 2, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_pad_bottom(ui->ST7789V3_IPV4_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_pad_left(ui->ST7789V3_IPV4_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
+	lv_obj_set_style_shadow_width(ui->ST7789V3_IPV4_Lable, 0, LV_PART_MAIN|LV_STATE_DEFAULT);
 
 	//Write codes ST7789V3_InputVoltage_Lable
 	ui->ST7789V3_InputVoltage_Lable = lv_label_create(ui->ST7789V3);
 	lv_label_set_text(ui->ST7789V3_InputVoltage_Lable, "VIN:12.13V");
 	lv_label_set_long_mode(ui->ST7789V3_InputVoltage_Lable, LV_LABEL_LONG_WRAP);
-	lv_obj_set_pos(ui->ST7789V3_InputVoltage_Lable, 212, 0);
+	lv_obj_set_pos(ui->ST7789V3_InputVoltage_Lable, 212, 2);
 	lv_obj_set_size(ui->ST7789V3_InputVoltage_Lable, 102, 16);
 
 	//Write style for ST7789V3_InputVoltage_Lable, Part: LV_PART_MAIN, State: LV_STATE_DEFAULT.

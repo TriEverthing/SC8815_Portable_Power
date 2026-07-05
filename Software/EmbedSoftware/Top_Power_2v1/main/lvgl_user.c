@@ -39,6 +39,7 @@ static void power_switch_event_handler(lv_event_t * even_t)
         if( lv_obj_has_state(obj, LV_STATE_CHECKED) )
         {
             ESP_LOGI("lvgl event","Power Siwcth ON.");
+            lv_label_set_text(guider_ui.ST7789V3_Status_Lable1, "ON");
             power_data.set_switch_status = 1 ;
             comm_powerctrl_set_output(1);  
             comm_powerctrl_set_mode( 0 , power_data.set_voltage , power_data.set_current );
@@ -46,6 +47,7 @@ static void power_switch_event_handler(lv_event_t * even_t)
         else
         {
             ESP_LOGI("lvgl event","Power Siwcth OFF.");
+            lv_label_set_text(guider_ui.ST7789V3_Status_Lable1, "OFF");
             power_data.set_switch_status = 0 ;
             comm_powerctrl_set_output(0);  
         }
@@ -234,8 +236,7 @@ void guiTask(void *pvParameter)
             lv_task_handler();
         }
 
-
-       if( initsetp < 1 && ( xTaskGetTickCount() - xLastWakeTime ) > pdMS_TO_TICKS(200) )
+        if( initsetp < 1 && ( xTaskGetTickCount() - xLastWakeTime ) > pdMS_TO_TICKS(200) )
         {
             lv_spinbox_set_value(guider_ui.ST7789V3_SetVoltageSpinbox , power_data.set_voltage / 10 );
             lv_spinbox_set_value(guider_ui.ST7789V3_SetCurrentSpinbox , power_data.set_current / 10 );
@@ -243,7 +244,7 @@ void guiTask(void *pvParameter)
         }
 
         /* Delay 1000ms Switch on blacklight */
-        if( initsetp < 2 && ( xTaskGetTickCount() - xLastWakeTime ) > pdMS_TO_TICKS(1000) )
+        if( initsetp < 2 && ( xTaskGetTickCount() - xLastWakeTime ) > pdMS_TO_TICKS(400) )
         {
             disp_backlight_set(bckl_handle, 40);
             initsetp = 2 ;
