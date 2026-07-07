@@ -51,7 +51,11 @@ static void wifi_event_handler(void* arg, esp_event_base_t event_base,int32_t ev
         ip_event_got_ip_t* event = (ip_event_got_ip_t*) event_data;
         ESP_LOGI(TAG, "Station Mode, Connect Router,IP:" IPSTR, IP2STR(&event->ip_info.ip));
         esp_ip4addr_ntoa(&event->ip_info.ip, current_ipv4, sizeof(current_ipv4));
-        lv_label_set_text(guider_ui.ST7789V3_IPV4_Lable, current_ipv4);   
+        if ( xSemaphoreTake(xGuiSemaphore, portMAX_DELAY) == pdTRUE ) 
+        {
+            lv_label_set_text(guider_ui.ST7789V3_IPV4_Lable, current_ipv4); 
+            xSemaphoreGive(xGuiSemaphore);
+        }
     }
 }
 
@@ -108,8 +112,11 @@ void wifi_ap_webserver_start(void)
     esp_netif_ip_info_t ap_ip;
     esp_netif_get_ip_info(ap_netif, &ap_ip);
     esp_ip4addr_ntoa(&ap_ip.ip, current_ipv4, sizeof(current_ipv4));
-    lv_label_set_text(guider_ui.ST7789V3_IPV4_Lable, current_ipv4);    
-
+    if ( xSemaphoreTake(xGuiSemaphore, portMAX_DELAY) == pdTRUE ) 
+    {
+        lv_label_set_text(guider_ui.ST7789V3_IPV4_Lable, current_ipv4); 
+        xSemaphoreGive(xGuiSemaphore);
+    }
     /* Soft AP Mode */
     wifi_config_t ap_config = 
     {
@@ -225,27 +232,24 @@ esp_err_t power_web_set_handler(httpd_req_t *req)
     }
 
     /* Update UI */
-    if( xGuiSemaphore != NULL )
+    if ( xSemaphoreTake(xGuiSemaphore, portMAX_DELAY) == pdTRUE ) 
     {
-        if ( xSemaphoreTake(xGuiSemaphore, portMAX_DELAY) == pdTRUE ) 
+        if( power_state >= 0 )
         {
-            if( power_state >= 0 )
+            if(power_state ) 
             {
-                if(power_state ) 
-                {
-                    lv_obj_add_state(guider_ui.PowerSwitch, LV_STATE_CHECKED);
-                    lv_label_set_text(guider_ui.ST7789V3_Status_Lable1, "ON"); 
-                } 
-                else 
-                {
-                    lv_obj_clear_state(guider_ui.PowerSwitch, LV_STATE_CHECKED);
-                    lv_label_set_text(guider_ui.ST7789V3_Status_Lable1, "OFF"); 
-                }
+                lv_obj_add_state(guider_ui.PowerSwitch, LV_STATE_CHECKED);
+                lv_label_set_text(guider_ui.ST7789V3_Status_Lable1, "ON"); 
+            } 
+            else 
+            {
+                lv_obj_clear_state(guider_ui.PowerSwitch, LV_STATE_CHECKED);
+                lv_label_set_text(guider_ui.ST7789V3_Status_Lable1, "OFF"); 
             }
-            lv_spinbox_set_value(guider_ui.ST7789V3_SetVoltageSpinbox , power_data.set_voltage / 10 );
-            lv_spinbox_set_value(guider_ui.ST7789V3_SetCurrentSpinbox , power_data.set_current / 10 );
-            xSemaphoreGive(xGuiSemaphore);
         }
+        lv_spinbox_set_value(guider_ui.ST7789V3_SetVoltageSpinbox , power_data.set_voltage / 10 );
+        lv_spinbox_set_value(guider_ui.ST7789V3_SetCurrentSpinbox , power_data.set_current / 10 );
+        xSemaphoreGive(xGuiSemaphore);
     }
 
     // Return success response
@@ -389,6 +393,11 @@ void WiFi_Task(void *pvParmeters)
     /* Initialize Wifi driver */
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+    while( xGuiSemaphore == NULL )
+    {
+        vTaskDelay(5);
+    }
 
     if( wifi_sta_connect_saved_wifi() == false )
     {
