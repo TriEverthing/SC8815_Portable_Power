@@ -62,8 +62,13 @@ static knob_handle_t knob = NULL;
 int16_t get_knob_diffval(void)
 {
     int16_t knob_res;
-    knob_diff = knob_diff + iot_knob_get_count_value(knob);
+    knob_res = iot_knob_get_count_value(knob);
     iot_knob_clear_count_value(knob);
+    if( knob_res * knob_diff < 0 )
+    {
+        knob_diff = 0;
+    }
+    knob_diff = knob_diff + knob_res;
     knob_res =  knob_diff / 2 ;
     knob_diff = knob_diff - knob_res*2;
     return knob_res;
