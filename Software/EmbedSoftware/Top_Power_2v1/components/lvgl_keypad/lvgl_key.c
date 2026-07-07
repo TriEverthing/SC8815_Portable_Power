@@ -99,7 +99,7 @@ void keypad_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 void encoder_read(lv_indev_drv_t * indev_drv, lv_indev_data_t * data)
 {
 #if USE_ESP_IOT_ENCODER
-    data->enc_diff = -get_knob_diffval();
+    data->enc_diff = get_knob_diffval();
 #else
     data->enc_diff = encoder_diff;
 #endif

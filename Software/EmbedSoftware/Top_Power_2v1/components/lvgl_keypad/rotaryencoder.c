@@ -61,9 +61,12 @@ static knob_handle_t knob = NULL;
 
 int16_t get_knob_diffval(void)
 {
-    knob_diff = iot_knob_get_count_value(knob);
+    int16_t knob_res;
+    knob_diff = knob_diff + iot_knob_get_count_value(knob);
     iot_knob_clear_count_value(knob);
-    return knob_diff ;
+    knob_res =  knob_diff / 2 ;
+    knob_diff = knob_diff - knob_res*2;
+    return knob_res;
 }
 
 static void knob_event_cb(void *arg, void *data)
@@ -80,7 +83,7 @@ static void knob_event_cb(void *arg, void *data)
 void knob_init(void)
 {
     knob_config_t cfg = {
-        .default_direction = 0,
+        .default_direction = 1,
         .gpio_encoder_a = ENCODER_PA_PIN,
         .gpio_encoder_b = ENCODER_PB_PIN,
 #if CONFIG_PM_ENABLE
