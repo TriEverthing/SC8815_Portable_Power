@@ -146,9 +146,9 @@ void st7735s_init(void)
 	}
 
 #if (CONFIG_LV_DISPLAY_ORIENTATION == 0) || (CONFIG_LV_DISPLAY_ORIENTATION == 1)
-	st7735s_portrait_mode = 1;
+	st7735s_portrait_mode = 1; //Portrait
 #else
-	st7735s_portrait_mode = 0;
+	st7735s_portrait_mode = 0; //Landscape
 #endif
 
     st7735s_set_orientation(CONFIG_LV_DISPLAY_ORIENTATION);
@@ -157,21 +157,21 @@ void st7735s_init(void)
 void st7735s_flush(lv_disp_drv_t * drv, const lv_area_t * area, lv_color_t * color_map)
 {
 	uint8_t data[4];
-
+	
 	/*Column addresses*/
 	st7735s_send_cmd(0x2A);
 	data[0] = (area->x1 >> 8) & 0xFF;
-	data[1] = (area->x1 & 0xFF) + (st7735s_portrait_mode ? COLSTART : ROWSTART);
+	data[1] = (area->x1 & 0xFF) + (st7735s_portrait_mode ? CONFIG_LV_TFT_DISPLAY_Y_OFFSET : CONFIG_LV_TFT_DISPLAY_X_OFFSET);
 	data[2] = (area->x2 >> 8) & 0xFF;
-	data[3] = (area->x2 & 0xFF) + (st7735s_portrait_mode ? COLSTART : ROWSTART);
+	data[3] = (area->x2 & 0xFF) + (st7735s_portrait_mode ? CONFIG_LV_TFT_DISPLAY_Y_OFFSET : CONFIG_LV_TFT_DISPLAY_X_OFFSET);
 	st7735s_send_data(data, 4);
 
 	/*Page addresses*/
 	st7735s_send_cmd(0x2B);
 	data[0] = (area->y1 >> 8) & 0xFF;
-	data[1] = (area->y1 & 0xFF) + (st7735s_portrait_mode ? ROWSTART : COLSTART);
-	data[2] = (area->y2 >> 8) & 0xFF;
-	data[3] = (area->y2 & 0xFF) + (st7735s_portrait_mode ? ROWSTART : COLSTART);
+	data[1] = (area->y1 & 0xFF) + (st7735s_portrait_mode ? CONFIG_LV_TFT_DISPLAY_X_OFFSET : CONFIG_LV_TFT_DISPLAY_Y_OFFSET);
+	data[2] = (area->y2>> 8) & 0xFF;
+	data[3] = (area->y2 & 0xFF) + (st7735s_portrait_mode ? CONFIG_LV_TFT_DISPLAY_X_OFFSET : CONFIG_LV_TFT_DISPLAY_Y_OFFSET);
 	st7735s_send_data(data, 4);
 
 	/*Memory write*/
@@ -231,11 +231,12 @@ static void st7735s_set_orientation(uint8_t orientation)
     ESP_LOGD(TAG, "Display orientation: %s", orientation_str[orientation]);
 
     /*
-        Portrait:  0xC8 = ST77XX_MADCTL_MX | ST77XX_MADCTL_MY | ST77XX_MADCTL_BGR
-        Landscape: 0xA8 = ST77XX_MADCTL_MY | ST77XX_MADCTL_MV | ST77XX_MADCTL_BGR
-        Remark: "inverted" is ignored here
+        Portrait:  			0xC8 = ST77XX_MADCTL_MX | ST77XX_MADCTL_MY | ST77XX_MADCTL_BGR
+		Portrait inverted:  0x88 = ST77XX_MADCTL_MX | ST77XX_MADCTL_BGR
+        Landscape: 			0xA8 = ST77XX_MADCTL_MY | ST77XX_MADCTL_MV | ST77XX_MADCTL_BGR
+		Landscape inverted: 0x68 = ST77XX_MADCTL_MX | ST77XX_MADCTL_MV | ST77XX_MADCTL_BGR
     */
-    uint8_t data[] = {0xC8, 0xC8, 0xA8, 0xA8};
+    uint8_t data[] = {0xC8, 0x88, 0xA8, 0x68};
 
     ESP_LOGD(TAG, "0x36 command value: 0x%02X", data[orientation]);
 
